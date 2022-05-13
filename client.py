@@ -102,6 +102,7 @@ if __name__ == '__main__':
                 print("file is already in cache and already imported\r\n")
                 print("Old response:")
                 print(cache[index][1])
+                print()
                 continue
 
             # print(GET_Request_Message(filename))
