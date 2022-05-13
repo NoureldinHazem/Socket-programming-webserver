@@ -1,6 +1,7 @@
 import socket
 import threading
 import os
+import time
 
 # Constants
 MAX_CONNECTIONS = 10
@@ -15,7 +16,44 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDRESS)
 
 
-def response(method, failure: bool, http, filetype=None, file_body=None):
+def recv_timeout(the_socket, timeout=2):
+    # make socket non blocking
+    the_socket.setblocking(0)
+
+    # total data part wise in an array
+    total_data = bytearray()
+    data = ''
+
+    # beginning time
+    begin = time.time()
+    while 1:
+        # if you got some data, then break after timeout
+        if total_data and time.time() - begin > timeout:
+            break
+
+        # if you got no data at all, wait a little longer, twice the timeout
+        elif time.time() - begin > timeout * 2:
+            break
+
+        # recv something
+        try:
+            data = the_socket.recv(LENGTH)
+            if data:
+                total_data.extend(data)
+                # change the beginning time for measurement
+                begin = time.time()
+            else:
+                # sleep for sometime to indicate a gap
+                time.sleep(0.1)
+        except:
+            pass
+
+   # final_data = ' '.join([str(item) for item in total_data])
+    # join all parts to make final string
+    return total_data
+
+
+def response(method, failure: bool, http, file_body=None):
     if not failure:
         status = 200
         status_message = 'OK'
@@ -34,24 +72,15 @@ def response(method, failure: bool, http, filetype=None, file_body=None):
             reply_message = response_message.encode(FORMAT) + b'\r\n'
             return reply_message
         else:
-            if filetype == 'txt':
-                print("Body: ", file_body)
-                reply_message = response_message.encode(FORMAT) + file_body.encode(FORMAT) + b'\r\n'
-                return reply_message
-            else:
-                reply_message = response_message.encode(FORMAT) + file_body + b'\r\n'
-                return reply_message
+            reply_message = response_message.encode(FORMAT) + file_body + b'\r\n'
+            return reply_message
 
 
-def get_function(file, filetype):
+def get_function(file):
     try:
         if os.path.exists(file):
-            if filetype == 'txt':
-                f = open(file, 'r')
-                return f.read()
-            else:
-                f = open(file, 'rb')
-                return f.read()
+            f = open(file, 'rb')
+            return f.read()
         else:
             print(f"\nFile [{file}] not found")
             return -1
@@ -73,31 +102,34 @@ def post_function(file, data):
 def handle_client(connection, address):
     print(f"[NEW CONNECTION] {address} connected to server.")
 
-    request = connection.recv(LENGTH)
-    # request_length = len(request)
+    request = recv_timeout(connection)
+
     print(f"[{address}] \n{request}")
 
     messages = request.split(b'\r\n')
+
     method_b = messages[0].split(b' ')[0]
-    file_b = messages[0].split(b'/')[1].split(b' ')[0]
-    file_type_b = messages[0].split(b'/')[1].split(b' ')[0].split(b'.')[1]
-    http_b = messages[0].split(b'/')[2].split(b'\r\n')[0]
     method = method_b.decode(FORMAT)
+
+    file_b = messages[0].split(b'/')[1].split(b' ')[0]
     file = file_b.decode(FORMAT)
-    file_type = file_type_b.decode(FORMAT)
+    if len(file) == 0:
+        file = "default"
+
+    http_b = messages[0].split(b'/')[2].split(b'\r\n')[0]
     http = http_b.decode(FORMAT)
+
     print("\nmethod:", method)
     print("filename:", file)
-    print("filetype:", file_type)
     print("http:", http)
 
     if method == 'GET':
         # file_content will have -1 if error occurred or will have the body of the file
-        file_content = get_function(file, file_type)
+        file_content = get_function(file)
         if file_content == -1:
-            response_message = response(method, True, http, file_type)
+            response_message = response(method, True, http)
         else:
-            response_message = response(method, False, http, file_type, file_content)
+            response_message = response(method, False, http, file_content)
         connection.send(response_message)
     else:
         data = request.split(b'\r\n\r\n')[1]
