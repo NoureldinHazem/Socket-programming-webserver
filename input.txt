@@ -1,0 +1,2 @@
+GET background.png 127.0.0.1 80
+GET background.png 127.0.0.1 80
