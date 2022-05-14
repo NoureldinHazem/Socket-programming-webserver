@@ -1,2 +1,2 @@
-GET background.png 127.0.0.1 80
-GET background.png 127.0.0.1 80
+POST download.jpg  192.168.56.1 5000
+GET download.jpg  192.168.56.1 5000

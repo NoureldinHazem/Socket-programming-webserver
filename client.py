@@ -89,10 +89,8 @@ if __name__ == '__main__':
         line = f.readline()
         if not line:
             break
-        clientSocket = socket(AF_INET, SOCK_STREAM)
         command, filename, ip_address, Port_num = Line_Parsing(line)
         # client connected to the server.
-        clientSocket.connect((ip_address, Port_num))
         # client connection initiated to the server.
         if command == 'GET':
             #print(CheckCache(line,cache))
@@ -104,13 +102,16 @@ if __name__ == '__main__':
                 print(cache[index][1])
                 print()
                 continue
-
+            clientSocket = socket(AF_INET, SOCK_STREAM)
+            clientSocket.connect((ip_address, Port_num))
             # print(GET_Request_Message(filename))
             clientSocket.send(GET_Request_Message(filename, ip_address))
 
         elif command == 'POST':
             # print(filename)
             # print(POST_Request_Message(filename, ip_address))
+            clientSocket = socket(AF_INET, SOCK_STREAM)
+            clientSocket.connect((ip_address, Port_num))
             clientSocket.send(POST_Request_Message(filename, ip_address))
 
         print("Message Received: \n ")
@@ -120,6 +121,7 @@ if __name__ == '__main__':
             # print(GET_Data)
             data = GET_Data.split(b'\r\n\r\n')[1]
             print(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))
+            filename = "Client get/" + filename
             f2 = open(filename, "wb")
             f2.write(data)
             f2.close()

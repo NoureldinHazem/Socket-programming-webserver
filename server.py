@@ -114,7 +114,7 @@ def handle_client(connection, address):
     file_b = messages[0].split(b'/')[1].split(b' ')[0]
     file = file_b.decode(FORMAT)
     if len(file) == 0:
-        file = "default"
+        file = "default.bin"
 
     http_b = messages[0].split(b'/')[2].split(b'\r\n')[0]
     http = http_b.decode(FORMAT)
