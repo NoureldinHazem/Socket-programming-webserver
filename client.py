@@ -70,7 +70,8 @@ def Line_Parsing(Line):
 
 def CheckCache(com, cache):
     file = com.split()[1]
-    host=com.split()[2]
+    host = com.split()[2]
+
     for i in range(len(cache)):
         if cache[i][0] == file and host==cache[i][1]:
             return i
@@ -116,11 +117,12 @@ if __name__ == '__main__':
             GET_Data = recv_timeout(clientSocket)
             data = GET_Data.split(b'\r\n\r\n')[1]
             print(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))
+            temp_file = filename
             filename = "Client get/" +ip_address+"_"+ filename
             f2 = open(filename, "wb")
             f2.write(data)
             f2.close()
-            cache.append([filename,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
+            cache.append([temp_file,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
 
         elif command == 'POST':
             Response_received = clientSocket.recv(2048)
