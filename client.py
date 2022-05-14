@@ -70,8 +70,9 @@ def Line_Parsing(Line):
 
 def CheckCache(com, cache):
     file = com.split()[1]
+    host=com.split()[2]
     for i in range(len(cache)):
-        if cache[i][0] == file:
+        if cache[i][0] == file and host==cache[i][1]:
             return i
     return -1
 
@@ -90,8 +91,6 @@ if __name__ == '__main__':
         if not line:
             break
         command, filename, ip_address, Port_num = Line_Parsing(line)
-        # client connected to the server.
-        # client connection initiated to the server.
         if command == 'GET':
             #print(CheckCache(line,cache))
             index=CheckCache(line, cache)
@@ -99,17 +98,14 @@ if __name__ == '__main__':
                 #print(CheckCache(line, cache))
                 print("file is already in cache and already imported\r\n")
                 print("Old response:")
-                print(cache[index][1])
+                print(cache[index][2])
                 print()
                 continue
             clientSocket = socket(AF_INET, SOCK_STREAM)
             clientSocket.connect((ip_address, Port_num))
-            # print(GET_Request_Message(filename))
             clientSocket.send(GET_Request_Message(filename, ip_address))
 
         elif command == 'POST':
-            # print(filename)
-            # print(POST_Request_Message(filename, ip_address))
             clientSocket = socket(AF_INET, SOCK_STREAM)
             clientSocket.connect((ip_address, Port_num))
             clientSocket.send(POST_Request_Message(filename, ip_address))
@@ -118,20 +114,17 @@ if __name__ == '__main__':
 
         if command == 'GET':
             GET_Data = recv_timeout(clientSocket)
-            # print(GET_Data)
             data = GET_Data.split(b'\r\n\r\n')[1]
             print(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))
-            filename = "Client get/" + filename
+            filename = "Client get/" +ip_address+"_"+ filename
             f2 = open(filename, "wb")
             f2.write(data)
             f2.close()
-            cache.append([filename,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
-            print(cache)
+            cache.append([filename,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
 
         elif command == 'POST':
             Response_received = clientSocket.recv(2048)
             print(Response_received.decode("UTF-8"))
-        # print("\n\n")
 
         print("Closing connection...\n\n")
     f.close()
