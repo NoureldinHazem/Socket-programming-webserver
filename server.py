@@ -104,7 +104,7 @@ def handle_client(connection, address):
 
     request = recv_timeout(connection)
 
-    print(f"[{address}] \n{request}")
+    # print(f"[{address}] \n{request}")
 
     messages = request.split(b'\r\n')
 
