@@ -66,7 +66,11 @@ def CheckCache(com, cache):
 
 
 if __name__ == '__main__':
-    commands_file = "input.txt"
+    # bash arguments added
+    if len(sys.argv) == 2:
+        commands_file = sys.argv[1]
+    else:
+        commands_file = "input.txt"
     f = open(commands_file, 'r')
     cache = []
     version="1.0"
@@ -107,12 +111,14 @@ if __name__ == '__main__':
             GET_Data = recv_timeout(clientSocket)
             data = GET_Data.split(b'\r\n\r\n')[1]
             print(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))
-            temp_file = filename
-            filename = "Client get/" +ip_address+"_"+ filename
-            f2 = open(filename, "wb")
-            f2.write(data)
-            f2.close()
-            cache.append([temp_file,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
+            status = GET_Data.split(b'\r\n\r\n')[0].split(b' ')[1].decode("UTF-8")
+            if status != '404':
+                temp_file = filename
+                filename = "Client get/" +ip_address+"_"+ filename
+                f2 = open(filename, "wb")
+                f2.write(data)
+                f2.close()
+                cache.append([temp_file,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
 
         elif command == 'POST':
             Response_received = recv_timeout(clientSocket)
