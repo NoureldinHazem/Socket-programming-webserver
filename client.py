@@ -134,7 +134,7 @@ if __name__ == '__main__':
             cache.append([temp_file,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
 
         elif command == 'POST':
-            Response_received = clientSocket.recv(819200)
+            Response_received = recv_timeout(clientSocket)
             print(Response_received.decode("UTF-8"))
 
     f.close()

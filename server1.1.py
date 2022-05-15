@@ -105,12 +105,15 @@ def post_function(file, data):
 def handle_client(connection, address, id):
     print(f"[NEW CONNECTION] {address} connected to server.")
     print(id)
-    while(time.time() - activethreads[id] < 1000):
+    while(time.time() - activethreads[id] < 10):
         try:
             #connection.settimeout(5000)
             request = recv_timeout(connection)
+
             if len(request) == 0:
                 continue
+            else:
+                activethreads[id]=time.time()
 
             #print(f"[{address}] \n{request}")
 
