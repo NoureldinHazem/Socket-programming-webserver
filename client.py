@@ -7,8 +7,8 @@ import time
 import sys
 
 
-def POST_Request_Message(file, host):
-    message = "POST /" + file + " HTTP/1.0\r\n"
+def POST_Request_Message(file, host, version):
+    message = "POST /" + file + " HTTP/"+version+"\r\n"
     Host = "Host: " + host + "\r\n\r\n"
     f1 = open(file, 'rb')
     body = f1.read()
@@ -52,8 +52,8 @@ def recv_timeout(the_socket, timeout=2):
     return total_data
 
 
-def GET_Request_Message(file, host):
-    message = "GET /" + file + " HTTP/1.0\r\n"
+def GET_Request_Message(file, host, version):
+    message = "GET /" + file + " HTTP/"+version+"\r\n"
     body = "Host: " + host + "\r\n\r\n"
     message = bytes(message + body, "UTF-8")
     return message
@@ -86,15 +86,22 @@ if __name__ == '__main__':
     commands_file = "input.txt"
     f = open(commands_file, 'r')
     cache = []
+    version="1.1"
+    i=0
     while True:
-
+        
         line = f.readline()
         if not line:
             break
         command, filename, ip_address, Port_num = Line_Parsing(line)
+        if version=="1.1" and i==0:
+            clientSocket = socket(AF_INET, SOCK_STREAM)
+            clientSocket.connect((ip_address, Port_num))
+            i=2
         if command == 'GET':
             #print(CheckCache(line,cache))
             index=CheckCache(line, cache)
+            
             if index!=-1:
                 #print(CheckCache(line, cache))
                 print("file is already in cache and already imported\r\n")
@@ -102,14 +109,16 @@ if __name__ == '__main__':
                 print(cache[index][2])
                 print()
                 continue
-            clientSocket = socket(AF_INET, SOCK_STREAM)
-            clientSocket.connect((ip_address, Port_num))
-            clientSocket.send(GET_Request_Message(filename, ip_address))
+            if version=="1.0":
+                clientSocket = socket(AF_INET, SOCK_STREAM)
+                clientSocket.connect((ip_address, Port_num))
+            clientSocket.send(GET_Request_Message(filename, ip_address, version))
 
         elif command == 'POST':
-            clientSocket = socket(AF_INET, SOCK_STREAM)
-            clientSocket.connect((ip_address, Port_num))
-            clientSocket.send(POST_Request_Message(filename, ip_address))
+            if version=="1.0":
+                clientSocket = socket(AF_INET, SOCK_STREAM)
+                clientSocket.connect((ip_address, Port_num))
+            clientSocket.send(POST_Request_Message(filename, ip_address, version))
 
         print("Message Received: \n ")
 
@@ -125,9 +134,9 @@ if __name__ == '__main__':
             cache.append([temp_file,ip_address,(GET_Data.split(b'\r\n\r\n')[0].decode("UTF-8"))])
 
         elif command == 'POST':
-            Response_received = clientSocket.recv(2048)
+            Response_received = clientSocket.recv(819200)
             print(Response_received.decode("UTF-8"))
 
-        print("Closing connection...\n\n")
     f.close()
     clientSocket.close()
+    print("Closing connection...\n\n")
