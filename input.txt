@@ -5,3 +5,6 @@ POST test.html 192.168.56.1 5000
 GET big.pdf 192.168.56.1 5000
 POST big.pdf 192.168.56.1 5000
 POST background.png 192.168.56.1 5000
+GET big.pdf 192.168.56.1 5000
+GET big.pdf 192.168.56.1 5000
+GET big.pdf 192.168.56.1 5000

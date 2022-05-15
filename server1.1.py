@@ -19,40 +19,29 @@ server.bind(ADDRESS)
 
 
 def recv_timeout(the_socket, timeout=2):
-    # make socket non blocking
     the_socket.setblocking(0)
 
-    # total data part wise in an array
     total_data = bytearray()
     data = ''
 
-    # beginning time
     begin = time.time()
     while 1:
-        # if you got some data, then break after timeout
         if total_data and time.time() - begin > timeout:
             break
 
-        # if you got no data at all, wait a little longer, twice the timeout
         elif time.time() - begin > timeout * 2:
             break
 
-        # recv something
         try:
 
             data = the_socket.recv(LENGTH)
             if data:
                 total_data.extend(data)
-                # change the beginning time for measurement
                 begin = time.time()
             else:
-                # sleep for sometime to indicate a gap
                 time.sleep(0.1)
         except:
             pass
-
-   # final_data = ' '.join([str(item) for item in total_data])
-    # join all parts to make final string
     return total_data
 
 
@@ -135,7 +124,6 @@ def handle_client(connection, address, id):
             print("http:", http)
 
             if method == 'GET':
-                # file_content will have -1 if error occurred or will have the body of the file
                 file_content = get_function(file)
                 if file_content == -1:
                     response_message = response(method, True, http)
@@ -177,7 +165,6 @@ def start():
         thread = threading.Thread(target=handle_client, args=(connection, address, i))
         
        
-        print(i)
         activethreads[i]=time.time()
         i+=1
         thread.start()

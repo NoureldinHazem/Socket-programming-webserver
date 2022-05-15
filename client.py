@@ -1,7 +1,3 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 from socket import *
 import time
 import sys
@@ -17,38 +13,28 @@ def POST_Request_Message(file, host, version):
 
 
 def recv_timeout(the_socket, timeout=2):
-    # make socket non blocking
     the_socket.setblocking(0)
 
-    # total data partwise in an array
     total_data = bytearray()
     data = '';
 
-    # beginning time
     begin = time.time()
     while 1:
-        # if you got some data, then break after timeout
         if total_data and time.time() - begin > timeout:
             break
 
-        # if you got no data at all, wait a little longer, twice the timeout
         elif time.time() - begin > timeout * 2:
             break
 
-        # recv something
         try:
             data = the_socket.recv(8192)
             if data:
                 total_data.extend(data)
-                # change the beginning time for measurement
                 begin = time.time()
             else:
-                # sleep for sometime to indicate a gap
                 time.sleep(0.1)
         except:
             pass
-    # total_data1=' '.join([bytes(item) for item in total_data])
-    # join all parts to make final string
     return total_data
 
 
@@ -79,14 +65,11 @@ def CheckCache(com, cache):
 
 
 
-    return False
-
-
 if __name__ == '__main__':
     commands_file = "input.txt"
     f = open(commands_file, 'r')
     cache = []
-    version="1.1"
+    version="1.0"
     i=0
     while True:
         
@@ -99,11 +82,9 @@ if __name__ == '__main__':
             clientSocket.connect((ip_address, Port_num))
             i=2
         if command == 'GET':
-            #print(CheckCache(line,cache))
             index=CheckCache(line, cache)
             
             if index!=-1:
-                #print(CheckCache(line, cache))
                 print("file is already in cache and already imported\r\n")
                 print("Old response:")
                 print(cache[index][2])
