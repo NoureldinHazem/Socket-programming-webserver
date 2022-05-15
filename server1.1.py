@@ -93,7 +93,7 @@ def post_function(file, data):
 
 def handle_client(connection, address, id):
     print(f"[NEW CONNECTION] {address} connected to server.")
-    print(id)
+    # print(id)
     while(time.time() - activethreads[id] < 10):
         try:
             #connection.settimeout(5000)
